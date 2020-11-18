@@ -16,7 +16,9 @@
 </template>
 
 <script>
+import mixin from "../mixin";
 export default {
+  mixins:[mixin],
   props: {
     data: Object,
     isSelectingZone: Boolean,
@@ -42,16 +44,7 @@ export default {
   },
   methods: {
     mouseup(){
-      let { startClientX, startClientY, endClientX, endClientY } = this.data
-      if(startClientX > endClientX){
-        this.data.startClientX = endClientX
-        this.data.endClientX = startClientX
-      }
-      if(startClientY > endClientY){
-        this.data.startClientY = endClientY
-        this.data.endClientY = startClientY
-      }
-      this.render()
+      this.handleSelectData(this.data, this)
     },
     getBoundingClientRect(){
       this.zoneBoundingClientRect = this.$el.getBoundingClientRect()
@@ -60,8 +53,8 @@ export default {
       this.data[prop] = this.originData[prop] + dis
     },
     resize(e){
-      let resizex = e.clientX - this.resizeStartOffset.clientX
-      let resizey = e.clientY - this.resizeStartOffset.clientY
+      let resizex = this.caclClientXTruePosition(e.clientX) - this.resizeStartOffset.clientX
+      let resizey = this.caclClientYTruePosition(e.clientY) - this.resizeStartOffset.clientY
       let fn = {
         left:() => this.setClientPosition('startClientX', resizex),
         right: () => this.setClientPosition('endClientX', resizex),
@@ -112,14 +105,6 @@ export default {
     isZone(e){
       let { classList } = e.target
       return classList.contains('ocr-select-editor__selection-zone') || classList.contains('ocr-select-editor__selection-zone-wrap')
-    },
-    caclClientXTruePosition(value){
-      let rate = 1 + (( this.zoom - 100 ) / 100)
-      return value / rate - 60 * ( 1 - this.zoom / 100 )
-    },
-    caclClientYTruePosition(value){
-      let rate = 1 + (( this.zoom - 100 ) / 100)
-      return value / rate
     },
     move(e){
       let disx = this.caclClientXTruePosition(e.clientX) - this.startOffset.clientX

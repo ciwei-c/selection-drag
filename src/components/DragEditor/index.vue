@@ -1,15 +1,15 @@
 <template>
   <div class="ocr-select-editor">
     <tool-sidebar :eventEmit="eventEmit" :eventOn="eventOn" :eventOff="eventOff"/>
-    <select-editor-content :eventEmit="eventEmit" :eventOn="eventOn" :eventOff="eventOff" style="margin-left:60px"/>
+    <select-editor-container :eventEmit="eventEmit" :eventOn="eventOn" :eventOff="eventOff"/>
   </div>
 </template>
 
 <script>
 import ToolSidebar from "./ToolSidebar"
-import SelectEditorContent from "./SelectEditorContent"
+import SelectEditorContainer from "./SelectEditorContainer"
 export default {
-  components:{ ToolSidebar, SelectEditorContent },
+  components:{ ToolSidebar, SelectEditorContainer },
   computed:{
     eventEmit(){
       return this.$emit.bind(this)

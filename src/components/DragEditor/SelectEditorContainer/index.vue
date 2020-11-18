@@ -1,17 +1,18 @@
 <template>
   <div
-    class="ocr-select-editor__content"
-     :style="{
+    class="ocr-select-editor__container"
+    ref="container"
+    :style="Object.assign({
       transform:`scale(${zoom/100})`,
       height:`${100 / (zoom/100)}%`,
       width:`${100 / (zoom/100)}%`
-    }"
+    }, positionStyle)"
     @mousedown="onMouseDown"
     @mousemove="onMouseMove"
     @mouseup="onMouseUp"
   >
     <div ref="rect">
-      <selection-wrap :zoom="zoom" @init="getBoundingClientRect">
+      <selection-wrap>
         <selection-zone
           v-for="(data, idx) in selectionZoneDatas"
           :class="`ocr-select-editor__selection-zone--index-${idx}`"
@@ -32,6 +33,7 @@
 
 <script>
 import emitMixin from "../emitMixin";
+import mixin from "./mixin";
 import SelectionZone from "./SelectionZone";
 import SelectionWrap from "./SelectionWrap";
 export default {
@@ -39,10 +41,17 @@ export default {
   computed:{
     parent(){
       return this
+    },
+    currentSelectIndex(){
+      return this.selectionZoneDatas && this.selectionZoneDatas.length - 1
     }
   },
   data() {
     return {
+      positionStyle:{
+        paddingLeft:'60px',
+        paddingTop:'100px'
+      },
       zoom: 100,
       selectionZoneDatas: [],
       isSelectingZone: false,
@@ -51,17 +60,33 @@ export default {
       boundingClientRect: null
     };
   },
-  mixins: [emitMixin],
+  mixins: [emitMixin, mixin],
   mounted() {
     this.eventOn("zoom", (v) => {
       this.zoom = v
       this.getBoundingClientRect()
     });
+    this.getBoundingClientRect()
   },
   beforeDestroy() {
     this.eventOff("zoom");
   },
   methods: {
+    // setPositonStyle(){
+    //   setTimeout(() => {
+    //     let rect = this.$refs.rect.getBoundingClientRect()
+    //     let width = rect.width
+    //     let height = rect.height
+    //     let containerRect = this.$refs.container.getBoundingClientRect()
+    //     let containerWidth = containerRect.width
+    //     let containerHeight = containerRect.height
+    //     this.positionStyle = {
+    //       paddingLeft: (containerWidth - width) / 2 + 'px',
+    //       paddingTop: (containerHeight - height) / 2 + 'px'
+    //     }
+    //     this.getBoundingClientRect()
+    //   });
+    // },
     getBoundingClientRect(){
       this.$nextTick(()=>{
         setTimeout(() => {
@@ -75,23 +100,15 @@ export default {
         })
       });
     },
-    caclClientXTruePosition(value){
-      let rate = 1 + (( this.zoom - 100 ) / 100)
-      return value / rate - 60 * ( 1 - this.zoom / 100 )
-    },
-    caclClientYTruePosition(value){
-      let rate = 1 + (( this.zoom - 100 ) / 100)
-      return value / rate
-    },
     onMouseDown(e) {
       try { this.$refs.selectionZone.forEach((v) => v.unSelect()) } catch (error) {}
-        const getCurrentSelectionZone = (classList, symbol) => {
+      const getCurrentSelectionZone = (classList, symbol) => {
         let idx = Array.from(classList).filter(v=>v.indexOf(symbol) > -1)[0].split(symbol)[1]
         return this.$refs.selectionZone[Number(idx)]
       }
       let node = e.target
       let { classList } = node
-      if(classList.contains('ocr-select-editor__content-select-range')){
+      if(classList.contains('ocr-select-editor__container-select-range')){
         this.isSelectingZone = true;
         this.selectionZoneDatas.push({
           startClientX: this.caclClientXTruePosition(e.clientX),
@@ -114,12 +131,11 @@ export default {
       }
     },
     setSelectZoneData(e){
-      let idx = this.selectionZoneDatas.length - 1
-      Object.assign(this.selectionZoneDatas[idx], {
+      Object.assign(this.selectionZoneDatas[this.currentSelectIndex], {
         endClientX:this.caclClientXTruePosition(e.clientX),
         endClientY:this.caclClientYTruePosition(e.clientY)
       })
-      this.$refs.selectionZone[idx].render()
+      this.$refs.selectionZone[this.currentSelectIndex].render()
     },
     onMouseMove(e) {
       if(this.isSelectingZone){
@@ -132,23 +148,8 @@ export default {
     },
     onMouseUp(e) {
       if(this.isSelectingZone){
-        e && this.setSelectZoneData(e)
-        let idx = this.selectionZoneDatas.length - 1
-        let selectData = this.selectionZoneDatas[idx]
-        let { startClientX, startClientY, endClientX, endClientY } = selectData
-        if(startClientX > endClientX){
-          selectData.startClientX = endClientX
-          selectData.endClientX = startClientX
-        }
-        if(startClientY > endClientY){
-          selectData.startClientY = endClientY
-          selectData.endClientY = startClientY
-        }
-        if(Math.abs(startClientX - endClientX) < 5 || Math.abs(startClientY - endClientY) < 5) {
-          this.selectionZoneDatas.splice(idx, 1)
-        } else {
-          this.$refs.selectionZone[idx].render()
-        }
+        this.setSelectZoneData(e)
+        this.handleSelectData(this.selectionZoneDatas[this.currentSelectIndex], this.$refs.selectionZone[this.currentSelectIndex])
       } else {
         this.currentSelectionZone && this.currentSelectionZone.mouseup()
       }
@@ -163,7 +164,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.ocr-select-editor__content {
+.ocr-select-editor__container {
   position: relative;
   display: inline-block;
   user-select: none;
@@ -172,9 +173,6 @@ export default {
   width: 100%;
   > div:first-child {
     position: absolute;
-    // top: 50%;
-    // left: 50%;
-    // transform: translate(-50%, -50%);
   }
 }
 </style>
