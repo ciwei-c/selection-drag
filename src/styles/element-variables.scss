@@ -1,5 +1,13 @@
+@import "./color.scss";
+
 /* 改变主题色变量 */
-// $--color-primary: teal;
+$--color-primary:$--color-primary;
+$--color-danger:$--color-danger;
+$--color-success:$--color-success;
+$--color-warning:$--color-warning;
+$--color-info:$--color-info;
+
+$--border-radius-base: 2px;
 
 /* 改变 icon 字体路径变量，必需 */
 $--font-path: '~element-ui/lib/theme-chalk/fonts';

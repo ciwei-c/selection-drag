@@ -1,0 +1,22 @@
+$--color-primary: #409EFF;
+$--color-danger: #F56C6C;
+$--color-warning: #E6A23C;
+$--color-success: #67C23A;
+$--color-blue: #00b6ff;
+$--color-desc: #c0c0c4;
+$--color-major: #16161c;
+$--color-border: #dcdfe6;
+$--color-light-border:#E5E5E5;
+$--color-second-major: #333333;
+$--color-info: #909399;
+
+:export {
+  primary: $--color-primary;
+  danger: $--color-danger;
+  success: $--color-success;
+  major: $--color-major;
+  info: $--color-info;
+  desc: $--color-desc;
+  blue: $--color-blue;
+  secondMajor: $--color-second-major;
+}

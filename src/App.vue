@@ -1,17 +1,17 @@
 <template>
   <div id="app">
-    <drag-editor />
+    <common-header />
+    <div style="height:calc(100% - 60px)">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
 <script>
-import DragEditor from './components/DragEditor'
-
+import CommonHeader from "@/components/Header"
 export default {
   name: 'App',
-  components: {
-    DragEditor
-  }
+  components:{CommonHeader}
 }
 </script>
 
