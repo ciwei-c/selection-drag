@@ -1,8 +1,20 @@
 <template>
   <div class="ocr-select-editor__tool-sidebar">
-    <div v-for="(action, idx) in actions" :key="idx" :class="`${type === action.type ? 'ocr-select-editor__tool-sidebar--active' : ''}`">
+    <div v-for="(action, idx) in actions" :key="idx" :class="`${type === action.type ? 'ocr-select-editor__tool-sidebar--active' : ''}`" v-show="!action.limit || action.limit === activeName">
       <el-tooltip class="item" effect="dark" :content="`${action.label}${action.type.startsWith('zoom') ? zoom + '%' : ''}`" placement="right">
-        <i :class="action.icon" type="text" @click="action.fn(action)"></i>
+        <i :class="action.icon" type="text" @click="action.fn(action)" v-if="action.type !== 'insertTable'"></i>
+         <el-popover
+            placement="right"
+            width="160"
+            trigger="click">
+            <div>
+              插入<el-input-number size="mini" :controls="false" style="width:50px;margin:0 10px" :min="2" v-model="columns"></el-input-number>列的表格
+              <div style="margin-top:20px;text-align:center">
+                <el-button type="primary" style="width:100%" @click="onInsertTable">插入</el-button>
+              </div>
+            </div>
+            <i :class="action.icon" slot="reference" type="text" @click="action.fn(action)"></i>
+          </el-popover>
       </el-tooltip>
     </div>
   </div>
@@ -12,8 +24,12 @@
 import emitMixin from "../emitMixin"
 export default {
   mixins:[emitMixin],
+  props:{
+    activeName:String
+  },
   data(){
     return {
+      columns:2,
       zoom: 100,
       type:'select',
       actions:[{
@@ -22,10 +38,23 @@ export default {
         icon:'el-icon-rank',
         fn:this.onDrag
       },{
-        label:'框选识别区',
+        label:'框选参照字段',
         type:'select',
+        limit: 'step1',
         icon:'el-icon-full-screen',
         fn:this.onSelect
+      },{
+        label:'框选识别区',
+        type:'select',
+        limit: 'step2',
+        icon:'el-icon-full-screen',
+        fn:this.onSelect
+      },{
+        label:'插入表格',
+        type:'table',
+        limit: 'step2',
+        icon:'el-icon-s-grid',
+        fn:this.insertTable
       },{
         label:'放大',
         type:'zoomIn',
@@ -47,6 +76,11 @@ export default {
     onSelect({type}){
       this.type = type
       this.eventEmit('mode', type)
+    },
+    insertTable(){
+    },
+    onInsertTable(){
+      this.eventEmit('insertTable', this.columns)
     },
     onZoom(data){
       let zoomValue = data.type === 'zoomIn' ? 10 : -10;

@@ -37,6 +37,7 @@
 <script>
 import emitMixin from "../emitMixin";
 import mixin from "./mixin";
+import tableMixin from "./tableMixin";
 import SelectionZone from "./SelectionZone";
 import SelectionWrap from "./SelectionWrap";
 export default {
@@ -81,7 +82,7 @@ export default {
       boundingClientRect: null
     };
   },
-  mixins: [emitMixin, mixin],
+  mixins: [emitMixin, mixin, tableMixin],
   mounted() {
     this.eventOn("zoom", (v) => {
       this.zoom = v
@@ -155,7 +156,11 @@ export default {
           this.currentSelectionZone = getCurrentSelectionZone(node.classList, '--zone-index-')
           this.currentSelectionZone.onResizeStart(e)
           this.isResizingZone = true
-        } else {
+        } else if (classList.contains('ocr-select-editor__table-dot')){
+          this.currentSelectionZone = getCurrentSelectionZone(node.classList, '--zone-index-')
+          this.currentSelectionZone.onResizeTable(e)
+          this.isResizingTable = true
+        }else {
           try {
             while(!node.classList.contains('ocr-select-editor__selection-zone')){
               node = node.parentNode
@@ -194,6 +199,8 @@ export default {
           this.currentSelectionZone.move(e)
         } else if (this.isResizingZone) {
           this.currentSelectionZone.resize(e)
+        } else if (this.isResizingTable){
+          this.currentSelectionZone.resizeTable(e)
         }
       } else {
         if(this.isDraging) {
@@ -232,6 +239,7 @@ export default {
       this.isDraging = false;
       this.isMovingZone = false;
       this.isResizingZone = false;
+      this.isResizingTable = false;
       this.currentSelectionZone = null;
     },
   },

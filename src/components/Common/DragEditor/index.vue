@@ -1,6 +1,6 @@
 <template>
   <div class="ocr-select-editor">
-    <tool-sidebar :eventEmit="eventEmit" :eventOn="eventOn" :eventOff="eventOff"/>
+    <tool-sidebar :eventEmit="eventEmit" :eventOn="eventOn" :eventOff="eventOff" :activeName="activeName"/>
     <select-editor-container :eventEmit="eventEmit" :eventOn="eventOn" :eventOff="eventOff" :activeName="activeName"/>
     <select-editor-panel :eventEmit="eventEmit" :eventOn="eventOn" :eventOff="eventOff" @activeChange="(v) => activeName = v"/>
   </div>

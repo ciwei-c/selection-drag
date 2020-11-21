@@ -4,13 +4,24 @@
     :class="{'ocr-select-editor__selection-zone--active':active}"
     :style="Object.assign(style, {cursor: isSelectingZone ? 'default' : 'move', zIndex:(isSelectingZone || isMovingZone) ? 0 : 4})"
   >
-    <div class="ocr-select-editor__selection-zone-wrap" v-if="active">
-      <div 
-        v-for="resizeAction in resizeActions" 
-        :key="resizeAction"
-        :action="resizeAction"
-        :class="`ocr-select-editor__selection-zone-dot ocr-select-editor__selection-zone-dot--${resizeAction} ocr-select-editor__selection-zone-dot--zone-index-${index}`"
-      ></div>
+    <div class="ocr-select-editor__selection-zone-wrap">
+      <template v-if="active">
+        <div 
+          v-for="resizeAction in resizeActions" 
+          :key="resizeAction"
+          :action="resizeAction"
+          :class="`ocr-select-editor__selection-zone-dot ocr-select-editor__selection-zone-dot--${resizeAction} ocr-select-editor__selection-zone-dot--zone-index-${index}`"
+        ></div>
+        <div 
+          v-for="(position, idx) in data.linesPosition" 
+          v-show="active" 
+          :key="`${idx}-dot`"
+          :index="idx"
+          :class="`ocr-select-editor__table-dot ocr-select-editor__table-dot--zone-index-${index}`"
+          :style="{left:`${position}%`}"
+        ></div>
+      </template>
+      <div v-for="(position, idx) in data.linesPosition" :key="`${idx}-line`" class="ocr-select-editor__table-line" :style="{left:`${position}%`}"></div>
     </div>
   </div>
 </template>
@@ -30,12 +41,12 @@ export default {
   },
   mounted(){
     let { startClientX, startClientY, endClientX, endClientY } = this.data;
-    this.style = {
+    this.setStyle({
       left: Math.min(startClientX, endClientX) + "px",
       top: Math.min(startClientY, endClientY) + "px",
       height: Math.abs(endClientY - startClientY) + "px",
       width: Math.abs(endClientX - startClientX) + "px",
-    };
+    })
   },
   data() {
     return {
@@ -46,6 +57,11 @@ export default {
   },
   methods: {
     mouseup(){
+      if(this.data.linesPosition) {
+        this.data.linesPosition = this.data.linesPosition.sort((a,b)=>{
+          return a - b
+        })
+      }
       this.getBoundingClientRect()
       this.handleSelectData(this.data, this)
       this.parent.eventEmit(this.parent.activeName === 'step1' ? 'fieldSelect' : 'zoneSelect', {
@@ -72,6 +88,14 @@ export default {
 
       this.render()
     },
+    resizeTable(e){
+      let resizex = this.caclClientXTruePosition(this.caclClientXBorderValue(e.clientX)) - this.resizeTableStartOffset.clientX
+      let position = this.startPosition + (resizex / this.zoneBoundingClientRect.width) * 100
+      if(position > 100) position = 100
+      if(position < 0) position = 0
+      this.data.linesPosition[this.resizeTableIndex] = position
+      this.render()
+    },
     setBorderValue(direction){
       let { startClientX, startClientY, endClientX, endClientY } = this.data;
       let prop = direction === 'X' ? 'width' : 'height'
@@ -95,8 +119,7 @@ export default {
       }
       return value
     },
-    render() {
-      this.getBoundingClientRect()
+    setStyle({left,top, height, width}){
       let { startClientX, startClientY, endClientX, endClientY } = this.data;
       this.style = {
         left: this.setBorderValue("X") + "px",
@@ -104,6 +127,16 @@ export default {
         height: Math.abs(endClientY - startClientY) + "px",
         width: Math.abs(endClientX - startClientX) + "px",
       };
+    },
+    render() {
+      this.getBoundingClientRect()
+      let { startClientX, startClientY, endClientX, endClientY } = this.data;
+      this.setStyle({
+        left: this.setBorderValue("X") + "px",
+        top: this.setBorderValue("Y") + "px",
+        height: Math.abs(endClientY - startClientY) + "px",
+        width: Math.abs(endClientX - startClientX) + "px",
+      })
     },
     isZone(e){
       let { classList } = e.target
@@ -126,6 +159,11 @@ export default {
       this.active = true;
       return { clientX:this.caclClientXTruePosition(clientX), clientY:this.caclClientYTruePosition(clientY)}
     },
+    onResizeTable(e){
+      this.resizeTableStartOffset = this.beforeSelect(e)
+      this.resizeTableIndex = e.target.getAttribute('index')
+      this.startPosition = this.originData.linesPosition[this.resizeTableIndex]
+    },
     select(e){
       this.startOffset = this.beforeSelect(e);
     },
@@ -139,12 +177,30 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/styles/color";
+.ocr-select-editor__table-line {
+  position: absolute;
+  height: 100%;
+  width: 1px;
+  top: 0;
+  transform: translateX(-50%);
+  background: $--color-primary;
+}
+.ocr-select-editor__table-dot {
+  background: #fff;
+  height: 6px;
+  top: 50%;
+  z-index: 1;
+  width: 6px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  cursor: w-resize;
+  border:2px solid $--color-primary;;
+  position: absolute;
+}
 .ocr-select-editor__selection-zone {
   border: 1px solid #ccc;
-  background: #ebcec4;
   top: 0;
   left: 0;
-  opacity: 0.5;
   position: absolute;
   user-select: none;
   &--active {
@@ -154,20 +210,20 @@ export default {
     position: relative;
     height: 100%;
     width: 100%;
-    border: 1px solid #409EFF;
+    border: 1px solid $--color-primary;;
   }
   &--step1 {
-    background: $--color-warning;
+    background: rgba($--color-warning, 0.5);
   }
   &--step2 {
-    background: $--color-primary;
+    background: rgba($--color-primary, 0.5);
   }
   &-dot {
     background: #fff;
     height: 6px;
     width: 6px;
     border-radius: 50%;
-    border:2px solid #409EFF;
+    border:2px solid $--color-primary;;
     position: absolute;
     z-index: 6;
     &--left-top {

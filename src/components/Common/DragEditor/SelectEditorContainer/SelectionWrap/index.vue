@@ -1,6 +1,6 @@
 <template>
   <div class="ocr-select-editor__container-wrap">
-    <img src="@/assets/bankbill01.png" alt="" ref="image" @load="$emit('load')" :style="{width:width+'px'}"/>
+    <img src="@/assets/bankbill01.png" alt="" ref="image" @load="$emit('load')" :style="{width:width+'px'}" class="ocr-select-editor__container-image"/>
     <div class="ocr-select-editor__container-select-range"></div>
     <div class="ocr-select-editor__container-drag-range" v-if="mode === 'drag'"></div>
     <slot></slot>
@@ -21,8 +21,6 @@ export default {
   },
   mounted(){
     this.width = document.querySelector(".ocr-select-editor__container").offsetWidth * 0.7
-  },
-  methods:{
   }
 }
 </script>
