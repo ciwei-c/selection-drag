@@ -13,7 +13,6 @@
         @on-success="onSuccess"
         @before-upload="beforeUpload"
         :show-file-list="false"
-        class="upload-demo"
         drag
         action="https://jsonplaceholder.typicode.com/posts/"
       >

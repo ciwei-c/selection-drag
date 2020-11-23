@@ -61,7 +61,9 @@ export default {
       cursor: pointer;
     }
   }
+  &-column,
   &-field-name,
+  &-table-name,
   &-field-type,
   &-ret {
     margin-bottom: 10px;
@@ -76,9 +78,17 @@ export default {
       text-align: left;
     }
   }
+  
+  &-column {
+    align-items: flex-start;
+    border-bottom: 1px solid #f2f2f2;
+    > span {
+      transform: translateY(6px);
+    }
+  }
   &-ret {
     div {
-      color: #f5f5f5;
+      color: #999;
       font-size: 12px;
     }
   }

@@ -4,6 +4,7 @@
       <el-tooltip class="item" effect="dark" :content="`${action.label}${action.type.startsWith('zoom') ? zoom + '%' : ''}`" placement="right">
         <i :class="action.icon" type="text" @click="action.fn(action)" v-if="action.type !== 'insertTable'"></i>
          <el-popover
+            v-else
             placement="right"
             width="160"
             trigger="click">
@@ -51,7 +52,7 @@ export default {
         fn:this.onSelect
       },{
         label:'插入表格',
-        type:'table',
+        type:'insertTable',
         limit: 'step2',
         icon:'el-icon-s-grid',
         fn:this.insertTable

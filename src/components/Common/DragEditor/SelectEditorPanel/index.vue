@@ -64,6 +64,7 @@ export default {
       this.fields = this.fields.map(v => v)
     })
     this.eventOn('zoneSelect', v=>{
+      console.log(v)
       this.zones[v.index] = Object.assign({}, v.data)
       this.zones = this.zones.map(v => v)
     })

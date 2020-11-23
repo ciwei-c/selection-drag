@@ -81,8 +81,8 @@ export default {
     height: calc(100% - 60px);
   }
   &__panel {
-    margin: 10px 20px 20px 50px;
-    padding-bottom: 30px;
+    padding: 10px 20px 30px 50px;
+    margin-bottom: 10px;
     &-title {
       font-size: 16px;
       color: #000;

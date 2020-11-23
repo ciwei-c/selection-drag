@@ -114,6 +114,9 @@
         :filter-method="column['filter-method']"
         :filtered-value="column['filtered-value']"
       >
+        <template v-if="column.headerFormat" :slot="column.headerFormat ? 'header' : 'hidden'" slot-scope="scope">
+          <header-cell :render="column.headerFormat" :arguments="{ record: scope.row, index: scope.$index, columnIndex: idx, column: column}"/>
+        </template>
         <template slot-scope="scope">
           <format-cell :render="column.format" :arguments="{ record: scope.row, index: scope.$index, columnIndex: idx, column: column, text: scope.row[column.prop] || '' }"></format-cell>
         </template>
@@ -147,6 +150,7 @@ import propsElement from './propsElement';
 import emitMixin from './Mixins/emitMixin';
 import methodsMixin from './Mixins/methodsMixin';
 import FormatCell from './FormatCell';
+import HeaderCell from './HeaderCell';
 import SearchForm from './SearchForm';
 import Add from './Add';
 import ExtraTop from './ExtraTop';
@@ -199,7 +203,7 @@ export default {
       calcActionWidth: null
     };
   },
-  components: { SearchForm, Add, FormatCell, Page, Action, ExtraTop },
+  components: { SearchForm, Add, FormatCell, Page, Action, ExtraTop, HeaderCell },
   mixins: [utils, propsElement, props, emitMixin, methodsMixin],
   methods: {
     getPage() {

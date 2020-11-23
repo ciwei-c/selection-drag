@@ -1,15 +1,21 @@
 <template>
   <div class="ocr-classifier-editor__template">
     <div class="ocr-classifier-editor__template-btn">
-      <el-button>添加预置模板</el-button>
-      <el-button>添加自定义模板</el-button>
+      <add-preset-template />
+      <add-custom-template />
     </div>
     <ocr-table :columns="columns" :data="data"></ocr-table>
+    <training-dataset ref="training" />
   </div>
 </template>
 
 <script>
+import AddKeyword from "./AddKeyword"
+import AddPresetTemplate from "./AddPresetTemplate"
+import AddCustomTemplate from "./AddCustomTemplate"
+import TrainingDataset from "./TrainingDataset"
 export default {
+  components:{AddKeyword, AddPresetTemplate, AddCustomTemplate, TrainingDataset},
   data() {
     return {
       data: [
@@ -45,8 +51,33 @@ export default {
         {
           title: "分类关键词",
           key: "templateId",
+          headerFormat: (row) => {
+            return <div>
+                <span>分类关键词</span> 
+                <el-tooltip effect="light" placement="right">
+                  <div slot="content">图片中存在的独有的文字内容，用于匹<br/>配版式相同的识别模板，请保证输入的<br/>关键词仅在该模板中出现</div>
+                  <i class="el-icon-question" style="cursor:pointer;margin-left:10px"></i>
+                </el-tooltip>
+              </div>
+          },
           format: (row) => {
-            return <el-button icon="el-icon-plus" type="text">请添加</el-button>;
+            return <AddKeyword />;
+          },
+        },
+        {
+          title: "训练集图片数量",
+          key: "templateImageCount",
+          headerFormat: (row) => {
+            return <div>
+                <span>训练集图片数量</span> 
+                <el-tooltip effect="light" placement="right">
+                  <div slot="content">每个模板至少上传30张训练集图片，才<br/>可训练模型</div>
+                  <i class="el-icon-question" style="cursor:pointer;margin-left:10px"></i>
+                </el-tooltip>
+              </div>
+          },
+          format: (row) => {
+            return "--";
           },
         },
         {
@@ -66,10 +97,11 @@ export default {
         {
           title: "操作",
           key: "action",
+          width:200,
           format: (row) => {
             return (
               <div>
-                <el-button type="text">编辑训练集</el-button>
+                <el-button type="text" on-click={()=>this.onTraining(row)}>编辑训练集</el-button>
                 <el-button type="text">清空关键字</el-button>
                 <el-button type="text">删除</el-button>
               </div>
@@ -79,6 +111,11 @@ export default {
       ],
     };
   },
+  methods:{
+    onTraining(row){
+      this.$refs.training.show(row)
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>

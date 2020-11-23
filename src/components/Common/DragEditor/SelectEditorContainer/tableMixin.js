@@ -15,13 +15,17 @@ export default {
         endClientX:width,
         endClientY:height,
         type:'insertTable',
-        columns:v,
+        columns:[],
         linesPosition:[]
       }
       for(let i = 1; i < v; i ++){
         data.linesPosition.push( (100 * i / v) )
       }
-      console.log(data)
+      for(let i = 0; i < v; i ++){
+        data.columns.push({
+          width
+        })
+      }
       this.eventEmit('zoneSelect', {
         data,
         index: this.selectionZoneDatas.length

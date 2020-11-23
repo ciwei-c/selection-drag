@@ -14,18 +14,19 @@
         <ocr-table :columns="customColumns" :data="customData"></ocr-table>
       </el-tab-pane>
     </el-tabs>
-    
+    <try-dialog ref="tryDialog"/>
   </div>
 </template>
 
 <script>
 import ImagePreviewCell from "@/components/Template/ImagePreviewCell"
 import TableAction from "@/components/Template/TableAction"
+import TryDialog from "@/components/Template/TryDialog"
 import CopyCell from "@/components/Template/CopyCell"
-import JsonCell from "@/components/Template/JsonCell"
+import JsonCell from "@/components/Common/JsonCell"
 import {parseTime} from "@/utils"
 export default {
-  components:{ImagePreviewCell, CopyCell, TableAction, JsonCell},
+  components:{ImagePreviewCell, CopyCell, TableAction, JsonCell, TryDialog},
   data() {
     return {
       activeName: "custom",
@@ -77,6 +78,9 @@ export default {
       },{
         title:"发布时间",
         key:"createTime",
+        headerFormat:({row})=>{
+          return <div>发布时间 <i class="el-icon-files"></i></div>
+        },
         format:(row)=>{
           return parseTime(row.createTime)
         }
@@ -91,20 +95,22 @@ export default {
       presetColumns.push({
         title:"操作",
         key:"action",
+        width:140,
         format:(row)=>{
           return <div>
             <JsonCell />
-            <el-button type="text">试一试</el-button>
+            <el-button type="text" on-click={()=>this.onTry()}>试一试</el-button>
           </div>
         }
       })
       let customColumns = columns.map(v=>Object.assign({}, v))
       customColumns.push({
         title:"操作",
+        width:140,
         key:"action",
         format:(row)=>{
           return <div>
-            <el-button type="text">试一试</el-button>
+            <el-button type="text" on-click={()=>this.onTry()}>试一试</el-button>
             <el-button type="text" on-click={()=>this.onEdit(row)}>编辑</el-button>
             <el-button type="text">删除</el-button>
           </div>
@@ -117,6 +123,9 @@ export default {
       this.$router.push({
         path:'/template-editor'
       })
+    },
+    onTry(){
+      this.$refs.tryDialog.show()
     }
   },
 };

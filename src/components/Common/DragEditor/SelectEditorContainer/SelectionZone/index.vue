@@ -4,7 +4,7 @@
     :class="{'ocr-select-editor__selection-zone--active':active}"
     :style="Object.assign(style, {cursor: isSelectingZone ? 'default' : 'move', zIndex:(isSelectingZone || isMovingZone) ? 0 : 4})"
   >
-    <div class="ocr-select-editor__selection-zone-wrap">
+    <div class="ocr-select-editor__selection-zone-wrap" :style="{borderWidth: !active ? '0px' : '1px'}">
       <template v-if="active">
         <div 
           v-for="resizeAction in resizeActions" 
@@ -63,6 +63,12 @@ export default {
         })
       }
       this.getBoundingClientRect()
+      if(this.data.columns && this.data.linesPosition){
+        this.data.columns = this.data.columns.map((v, idx)=>{
+          v.width = ((this.data.linesPosition[idx] || 100) - (this.data.linesPosition[idx - 1] || 0)) * this.zoneBoundingClientRect.width / 100
+          return v
+        })
+      }
       this.handleSelectData(this.data, this)
       this.parent.eventEmit(this.parent.activeName === 'step1' ? 'fieldSelect' : 'zoneSelect', {
         data: this.data,

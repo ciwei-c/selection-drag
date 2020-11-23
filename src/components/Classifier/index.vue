@@ -83,6 +83,7 @@ export default {
       {
         title:"操作",
         key:"action",
+        width:160,
         format:(row)=>{
           return <div>
             <el-button type="text">测试</el-button>

@@ -10,7 +10,7 @@
         <copy-cell :content="JSON.stringify(json)" :show-content="false" />
       </div>
       <div style="max-height: 550px; overflow: auto" v-if="visible">
-        <pre v-highlight><code>{{JSON.stringify(json, null, 4)}}</code></pre>
+        <json-pre :json="json"/>
       </div>
       <el-button type="text" slot="reference">查看JSON</el-button>
     </el-popover>
@@ -19,8 +19,9 @@
 
 <script>
 import CopyCell from "@/components/Template/CopyCell"
+import JsonPre from "@/components/Common/JsonPre"
 export default {
-  components:{CopyCell},
+  components:{JsonPre, CopyCell},
   data() {
     return {
       visible: false,

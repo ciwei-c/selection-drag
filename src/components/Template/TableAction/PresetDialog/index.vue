@@ -6,7 +6,7 @@
 
 <script>
 import ImagePreviewCell from "@/components/Template/ImagePreviewCell"
-import JsonCell from "@/components/Template/JsonCell"
+import JsonCell from "@/components/Common/JsonCell"
 export default {
   components:{ImagePreviewCell},
   data(){
