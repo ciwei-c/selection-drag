@@ -7,7 +7,7 @@
     >
       <div style="display:flex;justify-content: space-between;margin-bottom: 10px;">
         <div>示例JSON</div>
-        <copy-cell :content="JSON.stringify(json)" :show-content="false" />
+        <copy-cell :content="JSON.stringify(json)" :show-content="false" message="示例JSON已经复制到剪贴板"/>
       </div>
       <div style="max-height: 550px; overflow: auto" v-if="visible">
         <json-pre :json="json"/>

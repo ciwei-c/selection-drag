@@ -50,7 +50,7 @@
         <div>
           <el-input placeholder="列名称，最多20个字" style="margin-bottom:10px">
             <template slot="append">
-              <span style="width:80px;display:inline-block">W{{parseInt(column.width)}}</span>
+              <span style="width:42px;display:inline-block">W{{parseInt(column.width)}}</span>
             </template>
           </el-input>
           <el-select v-model="item.fieldType" style="width: 100%;margin-bottom:10px">

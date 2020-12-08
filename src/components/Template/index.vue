@@ -73,7 +73,7 @@ export default {
         width: 350,
         key:"templateId",
         format:(row)=>{
-          return <CopyCell content={row.templateId} />
+          return <CopyCell content={row.templateId} message="模板ID已经复制到剪贴板"/>
         }
       },{
         title:"发布时间",

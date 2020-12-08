@@ -1,8 +1,9 @@
 <template>
   <div class="ocr-select-editor__panel">
+    <tips ref="tips"/>
     <el-tabs v-model="activeName" style="height:100%">
       <el-tab-pane label="用户管理" name="step1">
-        <span slot="label">第1步:框选参照字段 <i class="el-icon-question"></i> <i class="el-icon-caret-right" style="color:#ccc;transform:translateX(20px)"></i></span>
+        <span slot="label">第1步:框选参照字段 <i class="el-icon-question" @click="onClickTips"></i> <i class="el-icon-caret-right" style="color:#ccc;transform:translateX(20px)"></i></span>
         <div style="height:100%">
            <el-alert
               title="至少选择4个参照字段"
@@ -15,7 +16,7 @@
         </div>
       </el-tab-pane>
       <el-tab-pane name="step2" style="height:100%">
-        <span slot="label">第2步:框选识别区 <i class="el-icon-question"></i></span>
+        <span slot="label">第2步:框选识别区 <i class="el-icon-question"  @click="onClickTips"></i></span>
         <div style="height:100%">
            <el-alert
               title="至少设置1个识别区"
@@ -33,11 +34,12 @@
 
 <script>
 import emitMixin from "../emitMixin";
+import Tips from "./Tips"
 import Fields from "./Fields"
 import Zones from "./Zones"
 export default {
   mixins: [emitMixin],
-  components: {Fields, Zones},
+  components: {Fields, Zones, Tips},
   computed:{
     parent(){
       return this
@@ -72,6 +74,11 @@ export default {
   beforeDestroy(){
     this.eventOff('fieldSelect')
     this.eventOff('zoneSelect')
+  },
+  methods:{
+    onClickTips(){
+      this.$refs.tips.show()
+    }
   }
 };
 </script>

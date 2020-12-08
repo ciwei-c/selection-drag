@@ -21,7 +21,8 @@ export default {
     showContent:{
       type:Boolean,
       default:true
-    }
+    },
+    message:String
   },
   methods: {
     copyContent(ElementObj) {
@@ -30,7 +31,7 @@ export default {
       inputElement.select();
       document.execCommand("Copy");
       inputElement.value = ""
-      this.$message.success("模板ID已经复制到剪贴板")
+      this.$message.success(this.message)
     },
   },
 };
