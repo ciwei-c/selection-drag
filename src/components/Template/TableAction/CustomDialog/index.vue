@@ -3,21 +3,24 @@
     :visible.sync="visible"
     :title="title"
     append-to-body
+    :buttonVisible="!!imageUrl"
     :confirmText="confirmText"
-    :cancel="cancel"
+    :cancel="false"
     width="700px"
     @confirm="onConfirm"
   >
-    <div v-if="step === 1" class="ocr-common--tc">
+    <div v-if="!imageUrl" class="ocr-common--tc">
       <el-upload
-        @on-success="onSuccess"
-        @before-upload="beforeUpload"
+        :on-success="onSuccess"
+        :before-upload="beforeUpload"
         :show-file-list="false"
         drag
-        action="https://jsonplaceholder.typicode.com/posts/"
+        :action="action"
       >
         <i class="el-icon-upload"></i>
-        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        <div class="el-upload__text">
+          将文件(不大于4M)拖到此处，或<em>点击上传</em>
+        </div>
       </el-upload>
     </div>
     <el-form :model="model" v-else ref="form" inline>
@@ -32,33 +35,38 @@
         class="ocr-common--tc ocr-template__custom-dialog-img"
         style="background: #f6f7fb; position: relative"
       >
-        <img
-          src="https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg"
-          alt=""
-        />
-        <div><i class="el-icon-refresh"></i> 重新上传</div>
+        <img :src="imageUrl" alt="" />
+        <el-upload
+          :on-success="onSuccess"
+          :before-upload="beforeUpload"
+          :show-file-list="false"
+          :action="action"
+        >
+          <div><i class="el-icon-refresh"></i> 重新上传</div>
+        </el-upload>
       </div>
     </el-form>
   </ocr-dialog>
 </template>
 
 <script>
+import uploadMixin from "../../uploadMixin"
 export default {
+  mixins:[uploadMixin],
   data() {
     return {
       model: {},
       title: "上传模板图片",
       confirmText: "下一步",
-      cancel: false,
       visible: false,
-      step: 1,
     };
   },
   watch: {
     visible(v) {
       if (!v) {
         this.model = {};
-        this.step = 1;
+        this.imageUrl = "";
+        this.imageId = "";
         if (this.$refs.form) {
           this.$refs.form.resetFields();
         }
@@ -66,32 +74,28 @@ export default {
     },
     step: {
       immediate: true,
-      handler(v) {
-        if (v === 1) {
-          this.confirmText = "下一步";
-          this.title = "上传模板图片";
-          this.cancel = false;
-        } else {
-        }
-      },
+      handler(v) {},
     },
   },
   methods: {
-    onSuccess(file) {
-      console.log(file);
-    },
-    beforeUpload(file) {
-      console.log(file);
-    },
     show() {
       this.visible = true;
     },
     onConfirm() {
-      if (this.step === 1) {
-        this.step++;
-      } else {
-        this.visible = false
-      }
+      this.$refs.form.validate((ok) => {
+        if (ok) {
+          this.$globalRequest(
+            this.$apis.template.addTemplate({
+              imageId: this.imageId,
+              preset: false,
+              templateName: this.model.templateName,
+            })
+          ).then((data) => {
+            this.visible = false;
+            this.$emit("success");
+          });
+        }
+      });
     },
   },
 };
@@ -101,8 +105,8 @@ export default {
 .ocr-template__custom-dialog-img {
   margin-top: 10px;
   img {
-    max-height: 300px;
     display: block;
+    width: 100%;
     margin: auto;
   }
   > div {
@@ -118,7 +122,7 @@ export default {
     width: 100%;
     background: rgba(#000000, 0.5);
     opacity: 0;
-    transition: all .3s;
+    transition: all 0.3s;
   }
   &:hover {
     > div {

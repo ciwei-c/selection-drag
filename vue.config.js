@@ -12,6 +12,15 @@ module.exports = {
   outputDir: outputDir ? outputDir : 'dist',
   lintOnSave: false,
   productionSourceMap:false,
+  devServer:{
+    port: 8081,
+    proxy: {
+      "/": {
+        target: "http://172.18.174.1:8100/iocr-server/v1/",
+        changOrigin: true,//允许跨域
+      },
+    }
+  },
   configureWebpack: {
     optimization: {
       // 稳定module id

@@ -1,6 +1,6 @@
 <template>
   <div class="ocr-template">
-    <table-action :activeName="activeName" />
+    <table-action :activeName="activeName" @success="getTemplates"/>
     <el-tabs v-model="activeName">
       <el-tab-pane name="preset">
         <span slot="label">预置模板 </span>
@@ -8,10 +8,10 @@
           <div slot="content" style="width:200px">预置模板无需编辑，可直接进行调用或训练自定义分类器，如需更多预置模板可点击“添加更多”进行勾选发布，各模板详细介绍可参考技术文档</div>
           <i class="el-icon-question"></i>
         </el-tooltip>
-        <ocr-table :columns="presetColumns" :data="presetData"></ocr-table>
+        <ocr-table :columns="presetColumns" :data="presetData" :page="presetPage" @page-change="getTemplates('preset')"></ocr-table>
       </el-tab-pane>
       <el-tab-pane label="自定义模板" name="custom">
-        <ocr-table :columns="customColumns" :data="customData"></ocr-table>
+        <ocr-table :columns="customColumns" :data="customData" :page="customPage" @page-change="getTemplates('custom')"></ocr-table>
       </el-tab-pane>
     </el-tabs>
     <try-dialog ref="tryDialog"/>
@@ -32,31 +32,39 @@ export default {
       activeName: "custom",
       presetColumns:[],
       customColumns:[],
-      presetData:[{}],
-      customData:[{}]
+      presetData:[],
+      customData:[],
+      customPage:{
+        total:0,
+        size:20,
+        index:1
+      },
+      presetPage:{
+        total:0,
+        size:20,
+        index:1
+      }
     };
   },
   mounted(){
     this.setColumns()
-    this.setFakeData()
+    this.getTemplates('custom')
+    this.getTemplates('preset')
   },
   methods: {
-    setFakeData(){
-      let data = [{
-        templateName:'大陆身份证正面新品',
-        templateImage:'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
-        templateId:'e995fd458226de8b0e955e53fdf9a0192020',
-        createTime:'2020-11-17 10:16:22',
-        modifiyTime:'2020-11-17 10:16:22'
-      },{
-        templateName:'大陆身份证正面新品',
-        templateImage:'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
-        templateId:'e995fd458226de8b0e955e53fdf9a0192020',
-        createTime:'2020-11-17 10:16:22',
-        modifiyTime:'2020-11-17 10:16:22'
-      }]
-      this.presetData = data
-      this.customData = data
+    getTemplates(type){
+      let isCustom = type === 'custom'
+      let pageObjectName = isCustom ? 'customPage' : 'presetPage'
+      let dataName = isCustom ? 'customData' : 'presetData'
+      let postData = {
+        preset:!isCustom,
+        pageNum:this[pageObjectName].index,
+        pageSize:this[pageObjectName].size
+      }
+      this.$globalRequest(this.$apis.template.getTemplates(postData)).then(data=>{
+        this[dataName] = data.data.list
+        this[pageObjectName].total = data.data.totalRecord
+      })
     },
     setColumns(){
       let columns = [{
@@ -64,9 +72,9 @@ export default {
         key:"templateName"
       },{
         title:"模板图片",
-        key:"templateImage",
+        key:"imageUrl",
         format:(row)=>{
-          return <ImagePreviewCell src={row.templateImage} />
+          return <ImagePreviewCell src={row.imageUrl} />
         }
       },{
         title:"模板ID（templateSign）",
@@ -77,18 +85,18 @@ export default {
         }
       },{
         title:"发布时间",
-        key:"createTime",
+        key:"deployTime",
         headerFormat:({row})=>{
           return <div>发布时间 <i class="el-icon-files"></i></div>
         },
         format:(row)=>{
-          return parseTime(row.createTime)
+          return row.deployTime ? parseTime(row.deployTime) : '--'
         }
       },{
         title:"修改时间",
-        key:"modifiyTime",
+        key:"modifyTime",
         format:(row)=>{
-          return parseTime(row.modifiyTime)
+          return parseTime(row.modifyTime)
         }
       }]
       let presetColumns = columns.map(v=>Object.assign({}, v))
@@ -99,7 +107,8 @@ export default {
         format:(row)=>{
           return <div>
             <JsonCell />
-            <el-button type="text" on-click={()=>this.onTry()}>试一试</el-button>
+            <el-button type="text" on-click={()=>this.onTry(row)} disabled={!row.deploy}>试一试</el-button>
+            <el-button type="text" on-click={()=>this.onDelete(row, 'preset')}>删除</el-button>
           </div>
         }
       })
@@ -110,22 +119,32 @@ export default {
         key:"action",
         format:(row)=>{
           return <div>
-            <el-button type="text" on-click={()=>this.onTry()}>试一试</el-button>
+            <el-button type="text" on-click={()=>this.onTry(row)} disabled={!row.deploy}>试一试</el-button>
             <el-button type="text" on-click={()=>this.onEdit(row)}>编辑</el-button>
-            <el-button type="text">删除</el-button>
+            <el-button type="text" on-click={()=>this.onDelete(row, 'custom')}>删除</el-button>
           </div>
         }
       })
       this.presetColumns = presetColumns
       this.customColumns = customColumns
     },
-    onEdit() {
-      this.$router.push({
-        path:'/template-editor'
+    onDelete(row, type){
+      this.$confirm(`是否确认模板 ${row.templateName}，删除后不可恢复`, '确认', {type:'warning'}).then(()=>{
+        this.$globalRequest(this.$apis.template.deleteTemplate({templateId:row.templateId})).then(data=>{
+          this.getTemplates(type)
+        })
       })
     },
-    onTry(){
-      this.$refs.tryDialog.show()
+    onEdit(row) {
+      this.$router.push({
+        path:'/template-editor',
+        query:{
+          templateId:row.templateId
+        }
+      })
+    },
+    onTry(row){
+      this.$refs.tryDialog.show(row)
     }
   },
 };

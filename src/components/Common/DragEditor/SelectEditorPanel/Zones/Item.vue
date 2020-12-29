@@ -22,16 +22,16 @@
           <el-option
             v-for="(type, idx) in types"
             :key="idx"
-            :label="type.label"
-            :value="type.label"
+            :label="type.dictVal"
+            :value="type.dictKey"
           ></el-option>
         </el-select>
       </div>
       <div class="ocr-select-editor__panel-zone-ret">
         <span>识别结果</span>
-        <div style="width: 100%">识别结果</div>
+        <div style="width: 100%">{{item.identificationResult}}</div>
       </div>
-      <div class="ocr-select-editor__panel-zone-tip">识别字段名称不能为空</div>
+      <div class="ocr-select-editor__panel-zone-tip ocr-select-editor__panel-zone--error" v-if="!item.fieldName">识别字段名称不能为空</div>
     </template>
     <template v-else>
       <div class="ocr-select-editor__panel-zone-title">
@@ -57,8 +57,8 @@
             <el-option
               v-for="(type, innerIdx) in types"
               :key="innerIdx"
-              :label="type.label"
-              :value="type.label"
+              :label="type.dictVal"
+              :value="type.dictKey"
             ></el-option>
           </el-select>
         </div>
@@ -74,41 +74,43 @@ export default {
     index: Number,
   },
   mounted(){
-    this.$set(this.item, 'fieldType', "常规")
+    this.$globalRequest(this.$apis.dict.getDicts(), false).then(data=>{
+      this.types = data.data
+    })
   },
   data() {
     return {
       types: [
-        {
-          label: "常规",
-        },
-        {
-          label: "小写数字金额",
-        },
-        {
-          label: "纯数字",
-        },
-        {
-          label: "日期",
-        },
-        {
-          label: "长串数字",
-        },
-        {
-          label: "手写汉字",
-        },
-        {
-          label: "手写数字",
-        },
-        {
-          label: "数字/英文/符号混合",
-        },
-        {
-          label: "勾选框",
-        },
-        {
-          label: "标准印刷体",
-        },
+        // {
+        //   label: "常规",
+        // },
+        // {
+        //   label: "小写数字金额",
+        // },
+        // {
+        //   label: "纯数字",
+        // },
+        // {
+        //   label: "日期",
+        // },
+        // {
+        //   label: "长串数字",
+        // },
+        // {
+        //   label: "手写汉字",
+        // },
+        // {
+        //   label: "手写数字",
+        // },
+        // {
+        //   label: "数字/英文/符号混合",
+        // },
+        // {
+        //   label: "勾选框",
+        // },
+        // {
+        //   label: "标准印刷体",
+        // },
       ],
     };
   },

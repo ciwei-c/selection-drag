@@ -50,12 +50,12 @@ export default {
         limit: 'step2',
         icon:'el-icon-full-screen',
         fn:this.onSelect
-      },{
-        label:'插入表格',
-        type:'insertTable',
-        limit: 'step2',
-        icon:'el-icon-s-grid',
-        fn:this.insertTable
+      // },{
+      //   label:'插入表格',
+      //   type:'insertTable',
+      //   limit: 'step2',
+      //   icon:'el-icon-s-grid',
+      //   fn:this.insertTable
       },{
         label:'放大',
         type:'zoomIn',
@@ -86,11 +86,11 @@ export default {
     onZoom(data){
       let zoomValue = data.type === 'zoomIn' ? 10 : -10;
       this.zoom = this.zoom + zoomValue;
-      if (this.zoom > 300) {
-        this.zoom = 300;
+      if (this.zoom > 500) {
+        this.zoom = 500;
       }
-      if (this.zoom < 50) {
-        this.zoom = 50;
+      if (this.zoom < 10) {
+        this.zoom = 10;
       }
       this.eventEmit('zoom', this.zoom)
     }

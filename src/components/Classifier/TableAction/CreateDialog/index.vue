@@ -19,12 +19,12 @@
       </el-form-item>
       <el-form-item
         label="功能描述"
-        prop="classifierFunction"
+        prop="classifierDesc"
         :rules="[{ required: true, message: '不能为空' }]"
       >
         <el-input
           type="textarea"
-          v-model="model.classifierFunction"
+          v-model="model.classifierDesc"
           placeholder="请简要描述产品功能，最长200个字"
           resize="none"
           :rows="4"
@@ -54,7 +54,17 @@ export default {
     show() {
       this.visible = true;
     },
-    onConfirm() {},
+    onConfirm() {
+      this.$refs.form.validate((ok) => {
+        if (ok) {
+          this.$globalRequest(this.$apis.classifier.addClassifier(this.model)).then(()=>{
+            this.$message.success("创建分类器成功")
+            this.$emit("success")
+            this.visible = false
+          });
+        }
+      });
+    },
   },
 };
 </script>

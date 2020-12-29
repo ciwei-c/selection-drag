@@ -15,7 +15,7 @@
     <div ref="rect" :style="{
       transform:`translate(calc(-50% + ${dragTransform.x}px), calc(-50% + ${dragTransform.y}px))`
     }">
-      <selection-wrap :mode="mode" @load="getBoundingClientRect">
+      <selection-wrap :mode="mode" @load="getBoundingClientRect" :image="data.imageUrl">
         <selection-zone
           v-for="(data, idx) in renderDatas"
           :class="`ocr-select-editor__selection-zone--index-${idx} ocr-select-editor__selection-zone--${activeName}`"
@@ -42,7 +42,8 @@ import SelectionZone from "./SelectionZone";
 import SelectionWrap from "./SelectionWrap";
 export default {
   props:{
-    activeName:String
+    activeName:String,
+    data:Object
   },
   watch:{
     activeName:{
@@ -50,6 +51,30 @@ export default {
       handler(v){
         this.renderDatas = this.activeName === 'step1' ? this.selectionFieldsDatas : this.selectionZoneDatas
       }
+    },
+    data(v){
+      let datas = [v.templateBenchmarks, v.templateIdentifications]
+      datas.forEach((data, idx) => {
+        data.forEach((item, innerIdx) => {
+          let {sx, sy, ex, ey} = JSON.parse(item.location)
+          let prop = !idx ? 'selectionFieldsDatas' : 'selectionZoneDatas'
+          let selectData = Object.assign({
+            startClientX: sx,
+            startClientY: sy,
+            endClientX: ex,
+            endClientY: ey,
+            fieldName: item.identificationName,
+            fieldType: item.fieldType,
+            identificationResult:item.identificationResult || item.markName,
+            id:`${Math.random()}`
+          })
+          this[prop].push(selectData)
+          this.eventEmit(!idx ? 'fieldSelect' : 'zoneSelect', {
+            data: selectData,
+            index: innerIdx
+          })
+        })
+      })
     }
   },
   components: { SelectionZone, SelectionWrap },
@@ -223,11 +248,11 @@ export default {
             this[this.field].splice(this.currentSelectIndex, 1)
           } else {
             this.$refs.selectionZone[this.currentSelectIndex].render()
+            this.eventEmit(this.activeName === 'step1' ? 'fieldSelect' : 'zoneSelect', {
+              data: selectData,
+              index: this.currentSelectIndex
+            })
           }
-          this.eventEmit(this.activeName === 'step1' ? 'fieldSelect' : 'zoneSelect', {
-            data: selectData,
-            index: this.currentSelectIndex
-          })
         } else {
           this.currentSelectionZone && this.currentSelectionZone.mouseup()
         }

@@ -1,7 +1,7 @@
 <template>
   <div class="ocr-classifier__table-action">
     <el-button icon="el-icon-plus" type="primary" @click="onCreate">创建分类器</el-button>
-    <create-dialog ref="createDialog" />
+    <create-dialog ref="createDialog" @success="parent.getClassifiers"/>
   </div>
 </template>
 
@@ -10,7 +10,8 @@ import CreateDialog from "./CreateDialog"
 export default {
   components:{CreateDialog},
   props:{
-    activeName:String
+    activeName:String,
+    parent:Object
   },
   data(){
     return {

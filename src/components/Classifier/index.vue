@@ -1,9 +1,9 @@
 <template>
   <div class="ocr-classifier">
-    <table-action :activeName="activeName" />
+    <table-action :activeName="activeName" :parent="parent"/>
     <el-tabs v-model="activeName">
       <el-tab-pane label="分类器管理" name="classifier">
-        <ocr-table :columns="classifierColumns" :data="classifierData"></ocr-table>
+        <ocr-table :columns="classifierColumns" :data="classifierData" :page="page" @page-change="getClassifiers"></ocr-table>
       </el-tab-pane>
     </el-tabs>
     
@@ -14,36 +14,41 @@
 import TableAction from "@/components/Classifier/TableAction"
 import StatusCell from "@/components/Common/StatusCell"
 import {parseTime} from "@/utils"
+import translateMixin from "@/mixins/translateMixin"
 export default {
+  mixins:[translateMixin],
   components:{TableAction, StatusCell},
   data() {
     return {
       activeName: "classifier",
       classifierColumns:[],
-      classifierData:[{}]
+      classifierData:[],
+      page:{
+        total:0,
+        size:20,
+        index:1
+      }
     };
+  },
+  computed:{
+    parent(){
+      return this
+    }
   },
   mounted(){
     this.setColumns()
-    this.setFakeData()
+    this.getClassifiers()
   },
   methods: {
-    setFakeData(){
-      let data = [{
-        classifierName:'qq',
-        classifierImage:'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
-        classifierId:'1',
-        createTime:'2020-11-17 10:16:22',
-        templateCount:'1'
-      },{
-        classifierName:'qq',
-        classifierImage:'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
-        classifierId:'2',
-        createTime:'2020-11-17 10:16:22',
-        templateCount:'2'
-      }]
-      this.presetData = data
-      this.classifierData = data
+    getClassifiers(){
+      this.$globalRequest(this.$apis.classifier.getClassifiers({
+        pageNum:this.page.index,
+        pageSize:this.page.size
+      })).then(data=>{
+        this.classifierData = data.data.list
+        this.page.total = data.data.totalRecord
+        this.translate = data.translate
+      })
     },
     setColumns(){
       let columns = [{
@@ -52,14 +57,15 @@ export default {
       },{
         title:"分类器ID",
         key:"classifierId",
+        width:300,
         format:(row)=>{
           return row.classifierId
         }
       },{
         title:"训练状态",
-        key:"classifierId",
+        key:"trainingState",
         format:(row)=>{
-          return <StatusCell />
+          return <StatusCell type={row.trainingState} label={this.translateProp(row, 'trainingState')}/>
         }
       },{
         title:"发布时间",
@@ -69,15 +75,15 @@ export default {
         }
       },{
         title:"包含模板数量",
-        key:"templateCount",
+        key:"templateNum",
         format:(row)=>{
-          return row.templateCount
+          return row.templateNum
         }
       },{
         title:"预估准确率",
-        key:"rate",
+        key:"accuracy",
         format:(row)=>{
-          return "--"
+          return row.accuracy ||　"--"
         }
       },
       {
@@ -87,8 +93,8 @@ export default {
         format:(row)=>{
           return <div>
             <el-button type="text">测试</el-button>
-            <el-button type="text" on-click={()=>this.onEdit()}>编辑</el-button>
-            <el-button type="text">删除</el-button>
+            <el-button type="text" on-click={()=>this.onEdit(row)}>编辑</el-button>
+            <el-button type="text" on-click={()=>this.onDelete(row)}>删除</el-button>
             <el-button type="text">发布</el-button>
           </div>
         }
@@ -96,9 +102,20 @@ export default {
       ]
       this.classifierColumns = columns
     },
-    onEdit() {
+    onDelete({classifierName, classifierId}){
+      this.$confirm(`是否确认删除分类器 ${classifierName}, 删除后无法恢复`, {title:'确认', type:'warning'}).then(()=>{
+        this.$globalRequest(this.$apis.classifier.deleteClassifier({classifierId})).then(()=>{
+          this.$message.success("删除成功")
+          this.getClassifiers()
+        })
+      })
+    },
+    onEdit({classifierId}) {
       this.$router.push({
-        path:'/classifier-editor'
+        path:'/classifier-editor',
+        query:{
+          classifierId
+        }
       })
     },
   },

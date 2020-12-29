@@ -7,35 +7,46 @@
   >
     <div class="ocr-template__try-dialog-body">
       <div class="ocr-template__try-dialog-body__image">
-        <!-- <el-upload
+        <img :src="imageUrl" alt="" v-if="imageUrl" />
+
+        <el-upload
+          v-if="imageUrl"
+          :on-change="onChange"
+          :auto-upload="false"
+          :show-file-list="false"
+          :action="action"
+        >
+          <div
+            class="ocr-template__try-dialog-body__image-choose"
+            v-if="imageUrl"
+          >
+            <i class="el-icon-refresh"></i>
+            <div>重新选择图片</div>
+          </div>
+        </el-upload>
+        <el-upload
+          v-else
+          :on-change="onChange"
+          :auto-upload="false"
           :show-file-list="false"
           drag
-          action="https://jsonplaceholder.typicode.com/posts/"
+          :action="action"
         >
           <i class="el-icon-upload"></i>
-          <div>
-            <el-button type="primary">点击上传图片</el-button>
+          <div class="el-upload__text">
+            将文件(不大于4M)拖到此处，或<em>点击上传</em>
           </div>
-          <div class="el-upload__text">图片大小不超过4M，最长边不超过4096像素</div>
-        </el-upload> -->
-        <img
-          src="https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg"
-          alt=""
-        />
-        <div class="ocr-template__try-dialog-body__image-choose">
-          <i class="el-icon-refresh"></i>
-          <div>重新选择图片</div>
-        </div>
+        </el-upload>
       </div>
       <div class="ocr-template__try-dialog-body__ret">
         <el-tabs v-model="activeName">
           <el-tab-pane label="识别结果" name="result">
             <el-row>
-              <div>未匹配到模板</div>
+              <div>{{ result }}</div>
             </el-row>
           </el-tab-pane>
           <el-tab-pane label="JSON" name="json">
-            <json-pre />
+            <json-pre :json="{}"/>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -45,18 +56,43 @@
 
 <script>
 import JsonPre from "@/components/Common/JsonPre";
+import uploadMixin from "../uploadMixin";
 export default {
+  mixins: [uploadMixin],
   components: { JsonPre },
+  watch: {
+    imageUrl(v) {
+      this.$globalRequest(
+        this.$apis.template.templateIdentify({
+          imageBase64: v,
+          templateId: this.row.templateId,
+        }).then((data)=>{
+          this.result = data.data.result
+        })
+      );
+    },
+  },
   data() {
     return {
       visible: false,
       jsonVisible: false,
+      result: "",
       activeName: "result",
     };
   },
   methods: {
-    show() {
+    show(row) {
       this.visible = true;
+      this.row = row;
+    },
+    onChange(file) {
+      if(this.isOversize(file.raw)) return
+      const reader = new FileReader();
+      reader.readAsDataURL(file.raw);
+      reader.onload = () => {
+        console.log(reader.result);
+        this.imageUrl = reader.result;
+      };
     },
   },
 };

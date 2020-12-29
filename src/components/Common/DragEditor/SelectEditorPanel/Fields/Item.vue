@@ -9,9 +9,9 @@
       <i class="el-icon-close" @click="() => $emit('close', index)"></i>
     </div>
     <div>
-      <el-input placeholder="识别内容为空" v-model="item.content"></el-input>
+      <el-input placeholder="识别内容为空" v-model="item.identificationResult"></el-input>
     </div>
-    <div class="ocr-select-editor__panel-field-tip">
+    <div class="ocr-select-editor__panel-field-tip ocr-select-editor__panel-field--error" v-if="!item.identificationResult">
       框选区内未识别到内容，请修改或重新选区
     </div>
   </div>

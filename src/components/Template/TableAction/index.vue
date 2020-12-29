@@ -3,8 +3,8 @@
     <el-button icon="el-icon-plus" type="primary" v-if="activeName === 'preset'" @click="onAddMore">添加更多</el-button>
     <el-button icon="el-icon-plus" type="primary" v-else @click="onCreateTemplate">创建模板</el-button>
     <el-input v-model="search" placeholder="搜索" suffix-icon="el-icon-search"></el-input>
-    <preset-dialog ref="presetDialog"/>
-    <custom-dialog ref="customDialog" />
+    <preset-dialog ref="presetDialog" @success="$emit('success', 'preset')"/>
+    <custom-dialog ref="customDialog" @success="$emit('success','custom')"/>
   </div>
 </template>
 

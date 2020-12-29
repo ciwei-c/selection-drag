@@ -12,26 +12,26 @@
         <div class="ocr-classifier-editor__panel-item">
           <label>分类器名称:</label>
           <div v-if="editing" style="display:flex;align-items: center;">
-            <el-input></el-input>
-            <el-button style="margin-left:10px" type="text" @click="editing = false">确定</el-button>
+            <el-input v-model="classifierName"></el-input>
+            <el-button style="margin-left:10px" type="text" @click="onChangeClassifierName">确定</el-button>
             <el-button type="text" @click="editing = false">取消</el-button>
           </div>
           <div v-else style="display:flex;align-items: center;">
-            <div>qq</div>
-            <el-button type="text" @click="editing = true" style="transform:translate(5px, 3px)">修改</el-button>
+            <div>{{classifierData.classifierName}}</div>
+            <el-button type="text" @click="editing = true; classifierName = classifierData.classifierName" style="transform:translate(5px, 3px)">修改</el-button>
           </div>
         </div>
         <div class="ocr-classifier-editor__panel-item">
           <label>分类器ID:</label>
-          <div>22</div>
+          <div>{{classifierData.classifierId || '--'}}</div>
         </div>
         <div class="ocr-classifier-editor__panel-item">
           <label>包含模板数:</label>
-          <div>11</div>
+          <div>{{classifierData.templateNum || 0}}</div>
         </div>
         <div class="ocr-classifier-editor__panel-item">
           <label>状态:</label>
-          <div><status-cell /></div>
+          <div><status-cell :type="classifierData.trainingState || ''" :label="translateProp(classifierData, 'trainingState')"/></div>
         </div>
       </div>
       <div class="ocr-classifier-editor__panel">
@@ -45,15 +45,44 @@
 <script>
 import StatusCell from "@/components/Common/StatusCell"
 import TemplateTable from "./TemplateTable"
+import translateMixin from "@/mixins/translateMixin"
 export default {
+  mixins:[translateMixin],
   components:{StatusCell, TemplateTable},
   data(){
     return {
-      editing:false
+      editing:false,
+      classifierData:{},
+      classifierName:"",
+      classifierId:""
     }
   },
+  mounted() {
+    if (!this.$route.query.classifierId) {
+      setTimeout(() => {
+        this.$router.push({
+          path:'/classifier'
+        })
+      }, 1000);
+      return this.$message.error("分类器不存在");
+    }
+    this.classifierId = this.$route.query.classifierId;
+    this.getClassifierById();
+  },
   methods:{
-    
+    getClassifierById(){
+      this.$globalRequest(this.$apis.classifier.getClassifierById({classifierId:this.classifierId})).then(data=>{
+        this.classifierData = data.data
+        this.classifierName = this.classifierData.classifierName
+        this.translate = data.translate
+      })
+    },
+    onChangeClassifierName(){
+      this.$globalRequest(this.$apis.classifier.updateClassifier(Object.assign(this.classifierData, {classifierName:this.classifierName}))).then(data=>{
+        this.classifierData.classifierName = this.classifierName
+        this.editing = false
+      })
+    }
   }
 }
 </script>
