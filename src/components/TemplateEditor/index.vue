@@ -84,7 +84,7 @@ export default {
       });
       postData.templateIdentifications = data.zones.map((v) => {
         return getPostData(v, {
-          fieldType:v.fieldType,
+          field:v.field,
           identificationName: v.fieldName,
           identificationResult: v.identificationResult
         })

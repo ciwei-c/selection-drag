@@ -29,6 +29,11 @@ const routes = [
     component: () => import('@/views/classifier/ClassifierEditor.vue')
   },
   {
+    path: '/field',
+    name: 'field',
+    component: () => import('@/views/field/index.vue')
+  },
+  {
     path: '*',
     redirect: '/'
   }

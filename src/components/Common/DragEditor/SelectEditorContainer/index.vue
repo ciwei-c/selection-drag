@@ -15,7 +15,7 @@
     <div ref="rect" :style="{
       transform:`translate(calc(-50% + ${dragTransform.x}px), calc(-50% + ${dragTransform.y}px))`
     }">
-      <selection-wrap :mode="mode" @load="getBoundingClientRect" :image="data.imageUrl">
+      <selection-wrap :mode="mode" @load="()=>{eventEmit('load');getBoundingClientRect}" :image="data.imageUrl">
         <selection-zone
           v-for="(data, idx) in renderDatas"
           :class="`ocr-select-editor__selection-zone--index-${idx} ocr-select-editor__selection-zone--${activeName}`"
@@ -64,7 +64,7 @@ export default {
             endClientX: ex,
             endClientY: ey,
             fieldName: item.identificationName,
-            fieldType: item.fieldType,
+            field: item.field,
             identificationResult:item.identificationResult || item.markName,
             id:`${Math.random()}`
           })

@@ -76,7 +76,7 @@ export default {
       set(v, 'fields', {identificationResult:''})
     })
     this.eventOn('zoneSelect', v=>{
-      set(v, 'zones', {fieldType:'',identificationResult:''})
+      set(v, 'zones', {field:'',identificationResult:''})
     })
   },
   beforeDestroy(){

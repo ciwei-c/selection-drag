@@ -21,7 +21,7 @@ export default {
     }
   },
   mounted(){
-    this.width = document.querySelector(".ocr-select-editor__container").offsetWidth * 0.7
+    // this.width = document.querySelector(".ocr-select-editor__container").offsetWidth * 0.7
   }
 }
 </script>

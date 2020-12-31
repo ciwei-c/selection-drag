@@ -51,6 +51,7 @@ export default {
     }
   },
   methods: {
+    onSuccess(){},
     onChange(file){
       this.$refs.upload.uploadFiles = this.$refs.upload.uploadFiles.filter(v=>{
         if(v.uid === this.file.uid) return false

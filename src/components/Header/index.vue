@@ -28,9 +28,9 @@ export default {
       },{
         label:"分类器管理",
         router:"/classifier"
-      // },{
-      //   label:"字段类型管理",
-      //   router:"/fieldtype"
+      },{
+        label:"字段类型管理",
+        router:"/field"
       // },{
       //   label:"文档中心",
       //   router:"/doc"

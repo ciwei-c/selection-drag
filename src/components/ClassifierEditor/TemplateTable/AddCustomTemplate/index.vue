@@ -22,7 +22,7 @@
         @selection-change="onSelectChange"
       ></ocr-table>
       <div style="margin-top: 10px; font-size: 12px">
-        注：已发布的模板方可参与分类
+        注：已发布的模板方可参与分类。列表已过滤已添加的模板
       </div>
     </ocr-dialog>
   </span>

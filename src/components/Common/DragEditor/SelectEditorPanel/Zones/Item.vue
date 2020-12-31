@@ -18,7 +18,7 @@
       </div>
       <div class="ocr-select-editor__panel-zone-field-type">
         <span>字段类型</span>
-        <el-select v-model="item.fieldType" style="width: 100%">
+        <el-select v-model="item.field" style="width: 100%">
           <el-option
             v-for="(type, idx) in types"
             :key="idx"
@@ -53,7 +53,7 @@
               <span style="width:42px;display:inline-block">W{{parseInt(column.width)}}</span>
             </template>
           </el-input>
-          <el-select v-model="item.fieldType" style="width: 100%;margin-bottom:10px">
+          <el-select v-model="item.field" style="width: 100%;margin-bottom:10px">
             <el-option
               v-for="(type, innerIdx) in types"
               :key="innerIdx"

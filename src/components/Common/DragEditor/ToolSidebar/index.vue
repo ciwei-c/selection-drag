@@ -1,7 +1,7 @@
 <template>
   <div class="ocr-select-editor__tool-sidebar">
     <div v-for="(action, idx) in actions" :key="idx" :class="`${type === action.type ? 'ocr-select-editor__tool-sidebar--active' : ''}`" v-show="!action.limit || action.limit === activeName">
-      <el-tooltip class="item" effect="dark" :content="`${action.label}${action.type.startsWith('zoom') ? zoom + '%' : ''}`" placement="right">
+      <el-tooltip class="item" effect="dark" :content="`${action.label}`" placement="right">
         <i :class="action.icon" type="text" @click="action.fn(action)" v-if="action.type !== 'insertTable'"></i>
          <el-popover
             v-else
@@ -27,6 +27,19 @@ export default {
   mixins:[emitMixin],
   props:{
     activeName:String
+  },
+  mounted(){
+    this.eventOn('load', ()=>{
+      let containerWidth = document.querySelector(".ocr-select-editor__container").offsetWidth * 0.7
+      let imageWidth = document.querySelector(".ocr-select-editor__container-image").offsetWidth
+      if(imageWidth > containerWidth) {
+        let rateCount = Math.floor((imageWidth - containerWidth) / (imageWidth * 0.1))
+        while(rateCount > 0) {
+          this.onZoom({type:'zoomOut'})
+          rateCount --
+        }
+      }
+    })
   },
   data(){
     return {

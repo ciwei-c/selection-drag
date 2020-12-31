@@ -10,7 +10,7 @@
         @success="getClassifierTemplates"
       />
     </div>
-    <ocr-table :columns="columns" :data="classifierTemplateData"></ocr-table>
+    <ocr-table :columns="columns" :data="classifierTemplateData" :enablePage="false"></ocr-table>
     <training-dataset ref="training" />
   </div>
 </template>
@@ -70,7 +70,7 @@ export default {
             );
           },
           format: (row) => {
-            return <AddKeyword />;
+            return <AddKeyword row={row} keyWord={row.keyWord} on-success={this.getClassifierTemplates}/>;
           },
         },
         {

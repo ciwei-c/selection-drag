@@ -68,4 +68,12 @@ export default {
       options
     })
   },
+  updateClassifierTemplate(data = {}, options = {}) {
+    return request({
+      url: `/classifier/template`,
+      method: 'put',
+      data,
+      options
+    })
+  },
 }
